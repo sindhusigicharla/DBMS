@@ -231,7 +231,8 @@ select count(*), category_name from products join categories on products.categor
  join orders as o on oi.order_id = o.order_id where order_status = "Delivered"
  group by category_id;
  
-
+ use ecommerce;
+select * from order_items;
 
 -- Count the number of orders for each order status.
 select count(*), order_status from orders group by order_status;
@@ -257,10 +258,31 @@ select product_name, category_name from products join
 
 -- Display order IDs, customer names, payment methods, and payment statuses.
 
--- Display the names of customers who purchased a Laptop.
+select customer_name, orders.order_id, payment_method, payment_status from customers join 
+orders on customers.customer_id = orders.customer_id
+join payments on orders.order_id = payments.order_id;
 
+select * from payments;
+
+-- Display the names of customers who purchased a Laptop.
+select customer_name, product_name from customers as c join orders as o
+on c.customer_id = o.customer_id
+join order_items as oi on oi.order_id = o.order_id
+join products as p on p.product_id = oi.product_id
+where product_name = 'Laptop';
 
 -- Display the products purchased by Rahul Sharma, including quantity and price.
+
+select product_name, quantity, unit_price, (quantity*unit_price) as total from customers as c join orders as o 
+on c.customer_id = o.customer_id join order_items as oi
+on o.order_id = oi.order_id join products as p on oi.product_id = p.product_id
+where customer_name = 'Rahul Sharma';
+
+
+
+
+
+
 
 -- Display customer names and their order statuses.
 
@@ -276,6 +298,11 @@ where stock <30;
 
 -- Display the order ID, product name, and quantity for every ordered product.
 
+select o.order_id, product_name, quantity from orders as o
+join order_items as oi on o.order_id = oi.order_id
+join products as p on oi.product_id = p.product_id;
+
+
 -- Find products priced between ₹1,000 and ₹4,000.
 select * from products where price between 1000 and 4000;
 
@@ -289,6 +316,11 @@ where payment_status= "Paid" or payment_status = "Pending";
 
 -- Display customer names, order IDs, and payment methods.
 
+select customer_name, o.order_id, payment_method from customers as c
+join orders as o on c.customer_id = o.customer_id
+join payments as p on o.order_id = p.order_id;
+
+
 -- Display customer names, product names, and quantities purchased.
 
 -- Display product names, category names, and stock quantities for products with stock above 20.
@@ -297,10 +329,31 @@ where payment_status= "Paid" or payment_status = "Pending";
 
 -- Display customer names, order IDs, and payment amounts for payments above ₹10,000.
 
+select customer_name, o.order_id, amount from customers as c
+join orders as o on c.customer_id = o.customer_id
+join payments p on o.order_id = p.order_id
+where amount>10000; 
+
+
 -- Calculate the total spending for each customer.
+
+select customer_name,  sum(quantity*unit_price) as total_amount from orders as o
+join order_items as oi on o.order_id = oi.order_id
+join products as p on oi.product_id = p.product_id
+join customers as c on c.customer_id = o.customer_id
+group by c.customer_id;
+
+
+
 
 -- Find customers who purchased products belonging to the Electronics category.
 
 -- Count the number of orders placed by customers in each city.
 
 -- Find the total quantity sold for each category.
+
+select category_name, sum(quantity) as qty from order_items as oi join products as p on
+oi.product_id = p.product_id 
+join categories as c on p.category_id = c.category_id
+ group by c.category_id
+
